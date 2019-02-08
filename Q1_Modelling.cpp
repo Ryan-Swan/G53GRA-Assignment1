@@ -18,6 +18,9 @@ void draw()
 
     glTranslatef(0.f, 0.f, -100.f);                     // move drawing further back in the scene
 
+    drawCube();						// custom draw function to draw cube from triangles
+    drawTetrahedron();					// custom draw function to draw tetrahedron from triangles
+
     checkGLError();
     glutSwapBuffers();                                  // execute all commands, swap buffers
 }
@@ -58,4 +61,99 @@ void reshape(int _width, int _height)
     gluPerspective(45.0, aspect, 1, 1000);
     glViewport(0, 0, width, height);
     glMatrixMode(GL_MODELVIEW); // return matrix mode to modelling and viewing
+}
+
+void drawCube()
+{
+    glColor3f(0.f, 0.f, 0.f);
+    float r = 10.f;
+   // glBegin(GL_TRIANGLES);
+    glBegin(GL_LINE_LOOP);	 
+       // Near face
+	// Left Triangle
+	glVertex3f(-r, -r, r);
+        glVertex3f(r, r, r);
+        glVertex3f(-r, r, r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        // Right Triangle
+	glVertex3f(-r, -r, r);
+        glVertex3f(r, -r, r);
+        glVertex3f(r, r, r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+	// Right face
+	// Near Triangle
+        glVertex3f(r, -r, r);
+        glVertex3f(r, r, -r);
+        glVertex3f(r, r, r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+	
+	// Back Triangle
+	glVertex3f(r, -r, r);
+        glVertex3f(r, -r, -r);
+        glVertex3f(r, r, -r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+
+        // Back face
+	// Left (if viewed from face) Triangle (Right if viewed from/through near face)
+        glVertex3f(r, -r, -r);
+        glVertex3f(-r, -r, -r);
+        glVertex3f(r, r, -r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+	// Right (if viewed from face) Triangle (Left if viewed from/through near face)
+        glVertex3f(-r, -r, -r);
+        glVertex3f(-r, r, -r);
+        glVertex3f(r, r, -r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+
+        // Left face
+	// Back triangle
+        glVertex3f(-r, -r, -r);
+        glVertex3f(-r, -r, r);
+        glVertex3f(-r, r, -r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+	// Near triangle
+        glVertex3f(-r, -r, r);
+        glVertex3f(-r, r, r);
+        glVertex3f(-r, r, -r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+
+        // Top face
+	// Left triangle
+        glVertex3f(-r, r, r);
+        glVertex3f(r, r, -r);
+        glVertex3f(-r, r, -r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        // Right triangle
+        glVertex3f(-r, r, r);
+        glVertex3f(r, r, r);
+        glVertex3f(r, r, -r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+
+        // Bottom face
+	// Right triangle (if viewed from bottom face)
+        glVertex3f(r, -r, -r);
+	glVertex3f(r, -r, r);
+	glVertex3f(-r, -r, r);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+	// Left triangle (if viewed from bottom face)
+        glVertex3f(-r, -r, -r);
+        glVertex3f(r, -r, -r);
+        glVertex3f(-r, -r, r);
+    glEnd();
+}
+
+void drawTetrahedron()
+{
+
 }

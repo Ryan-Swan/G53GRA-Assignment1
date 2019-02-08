@@ -20,5 +20,5 @@ void draw();
 int main(int argc, char **argv);
 void checkGLError();
 void reshape(int _width, int _height);
-
-int height, width;
+void drawCube();
+void drawTetrahedron();
