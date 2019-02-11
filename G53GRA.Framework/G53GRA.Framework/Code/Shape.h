@@ -23,7 +23,10 @@ public:
 	
 private:
 	void DrawOctahedron();
-	std::vector< std::vector<float> > Subdivision(int n, std::vector<float> l, std::vector<float> r, std::vector<float> t);
+	void Subdivision(int n, std::vector<float> l, std::vector<float> r, std::vector<float> t);
+	float GetMagnitude(std::vector<float> v);
+	int x;
+	std::vector< std::vector<float> > list;
 
 	// key press flags
 	GLboolean _iKey, _jKey, _kKey, _lKey, _oKey, _uKey;

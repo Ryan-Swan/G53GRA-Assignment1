@@ -7,6 +7,27 @@ _lKey(false), _oKey(false), _uKey(false), _plusKey(false), _minusKey(false),
 _upKey(false), _downKey(false), _leftKey(false), _rightKey(false)
 {
 	size(_INIT_SIZE);
+	x = 3;
+	std::vector< std::vector<float> > list;
+
+	float r = 1.f;
+	std::vector<float> f(3), l(3), rs(3), t(3), b(3), ba(3);
+	f = { 0, 0, r };
+	l = { -r, 0, 0 };
+	rs = { r, 0, 0 };
+	t = { 0, r, 0 };
+	b = { 0, -r, 0 };
+	ba = { 0, 0, -r };
+
+	Subdivision(x, f, rs, t);
+	Subdivision(x, f, b, rs);
+	Subdivision(x, rs, ba, t);
+	Subdivision(x, rs, b, ba);
+	Subdivision(x, ba, l, t);
+	Subdivision(x, ba, b, l);
+	Subdivision(x, l, f, t);
+	Subdivision(x, l, b, f);
+
 }
 
 void Shape::Display()
@@ -29,6 +50,7 @@ void Shape::Display()
 	glRotatef(rotation[2], 0.0f, 0.0f, 1.0f); // angle rz about (0,0,1)
 	glRotatef(rotation[0], 1.0f, 0.0f, 0.0f); // angle rx about (1,0,0)
 
+	
 	DrawOctahedron();
 
 	// Reenable default lighting (IGNORE THIS)
@@ -39,120 +61,68 @@ void Shape::Display()
 
 void Shape::DrawOctahedron()
 {
-	float r = 1.f;
-	glColor3f(0.8f, 0.8f, 0.8f);
-	
-	std::vector<float> l(3), rs(3), t(3);
-	l = { 0, 0, r };
-	rs = { r, 0, 0 };
-	t = { 0, r, 0 };
-
-	std::vector< std::vector<float> > list;
-	list = Subdivision(2, l, rs, t);
-
-	std::cout << list.size() << std::endl;
+	glColor3f(0.7f, 0.7f, 0.7f);
 
 	glBegin(GL_TRIANGLES);
-	for (unsigned i = 0; i < list.size() - 2; i++) {
+
+	for (unsigned i = 0; i < list.size() - 2; i += 3) {
 		    glVertex3f(list[i][0], list[i][1], list[i][2]);
 			glVertex3f(list[i + 1][0], list[i + 1][1], list[i + 1][2]);
 			glVertex3f(list[i + 2][0], list[i + 2][1], list[i + 2][2]);
 	}
+
 	glEnd();
-
-
-	/*glBegin(GL_LINE_LOOP);
-
-	// Top Half
-	// Front-Right Face
-	glVertex3f(0, 0, r);
-	glVertex3f(r, 0, 0);
-	glVertex3f(0, r, 0);
-
-	// Back-Right Face
-	glVertex3f(r, 0, 0);
-	glVertex3f(0, 0, -r);
-	glVertex3f(0, r, 0);
-
-	// Back-Left Face
-	glVertex3f(0, 0, -r);
-	glVertex3f(-r, 0, 0);
-	glVertex3f(0, r, 0);
-
-	// Front-Left Face
-	glVertex3f(-r, 0, 0);
-	glVertex3f(0, 0, r);
-	glVertex3f(0, r, 0);
-
-
-	// Bottom Half
-	// Front-Right Face
-	glVertex3f(r, 0, 0);
-	glVertex3f(0, 0, r);
-	glVertex3f(0, -r, 0);
-
-	// Back-Right Face
-	glVertex3f(0, 0, -r);
-	glVertex3f(r, 0, 0);
-	glVertex3f(0, -r, 0);
-
-	// Back-Left Face
-	glVertex3f(-r, 0, 0);
-	glVertex3f(0, 0, -r);
-	glVertex3f(0, -r, 0);
-
-	// Front-Left Face
-	glVertex3f(0, 0, r);
-	glVertex3f(-r, 0, 0);
-	glVertex3f(0, -r, 0);
-
-	glEnd(); */
-
 }
 
-std::vector< std::vector<float> > Shape::Subdivision(int n, std::vector<float> l, std::vector<float> r, std::vector<float> t)
+void Shape::Subdivision(int n, std::vector<float> l, std::vector<float> r, std::vector<float> t)
 {
-	std::vector< std::vector<float> > list;
 
 	// Midpoint Vectors
 	std::vector<float> v1(3), v2(3), v3(3);
-	v1 = { ((l[0] + t[0]) / 2), ((l[1] + t[1]) / 2), ((l[2] + t[2]) / 2) };
-	v2 = { ((l[0] + r[0]) / 2), ((l[1] + r[1]) / 2), ((l[2] + r[2]) / 2) };
-	v3 = { ((t[0] + r[0]) / 2), ((t[1] + r[1]) / 2), ((t[2] + r[2]) / 2) };
+	v1 = { (float) ((l[0] + t[0]) / 2), (float) ((l[1] + t[1]) / 2), (float) ((l[2] + t[2]) / 2) };
+	v2 = { (float) ((l[0] + r[0]) / 2), (float) ((l[1] + r[1]) / 2), (float) ((l[2] + r[2]) / 2) };
+	v3 = { (float) ((t[0] + r[0]) / 2), (float) ((t[1] + r[1]) / 2), (float) ((t[2] + r[2]) / 2) };
 
-	v1 = { (float)(v1[0] * 1.f / sqrt(2)), (float)(v1[1] * 1.f / sqrt(2)), (float)(v1[2] * 1.f / sqrt(2)) };
-	v2 = { (float)(v2[0] * 1.f / sqrt(2)), (float)(v2[1] * 1.f / sqrt(2)), (float)(v2[2] * 1.f / sqrt(2)) };
-	v3 = { (float)(v3[0] * 1.f / sqrt(2)), (float)(v3[1] * 1.f / sqrt(2)), (float)(v3[2] * 1.f / sqrt(2)) };
+	v1 = { (float) (v1[0] / GetMagnitude(v1)), (float) (v1[1] / GetMagnitude(v1)), (float) (v1[2] / GetMagnitude(v1)) };
+	v2 = { (float) (v2[0] / GetMagnitude(v2)), (float) (v2[1] / GetMagnitude(v2)), (float) (v2[2] / GetMagnitude(v2)) };
+	v3 = { (float) (v3[0] / GetMagnitude(v3)), (float) (v3[1] / GetMagnitude(v3)), (float) (v3[2] / GetMagnitude(v3)) };
 
-	list.push_back(l);
-	list.push_back(v2);
-	list.push_back(v1);
+	if (n == 0) {
+		list.push_back(l);
+		list.push_back(v2);
+		list.push_back(v1);
 
-	list.push_back(v1);
-	list.push_back(v2);
-	list.push_back(v3);
+		list.push_back(v1);
+		list.push_back(v2);
+		list.push_back(v3);
 
-	list.push_back(v2);
-	list.push_back(r);
-	list.push_back(v3);
+		list.push_back(v2);
+		list.push_back(r);
+		list.push_back(v3);
 
-	list.push_back(v1);
-	list.push_back(v2);
-	list.push_back(t);
+		list.push_back(v1);
+		list.push_back(v3);
+		list.push_back(t);
+	}
 
-	if (n == 0) return list;
+	if ( n != 0 ) {
+		Subdivision(n - 1, v1, v3, t);
+		Subdivision(n - 1, l, v2, v1);
+		Subdivision(n - 1, v2, r, v3);
+		Subdivision(n - 1, v1, v2, v3);
+	}
 
-	Subdivision(n - 1, v1, v3, t);
-	Subdivision(n - 1, l, v2, v1);
-	Subdivision(n - 1, v2, r, v3);
-	Subdivision(n - 1, v1, v2, v3);
-
-	return list;
-	//std::vector<float> new_v1(3), new_v2(3), new_v3(3);
-	//new_v1 = { (float) (v1[1] * 1.f / sqrt(2)), (float) (v1[2] * 1.f / sqrt(2)), (float) (v1[3] * 1.f / sqrt(2)) };
-	//new_v2 = { (float) (v2[1] * 1.f / sqrt(2)), (float) (v2[2] * 1.f / sqrt(2)), (float) (v2[3] * 1.f / sqrt(2)) };
-	//new_v3 = { (float) (v3[1] * 1.f / sqrt(2)), (float) (v3[2] * 1.f / sqrt(2)), (float) (v3[3] * 1.f / sqrt(2)) };
+	
 } 
+
+float Shape::GetMagnitude(std::vector<float> v)
+{
+	for (int i = 0; i < 3; i++) {
+		v[i] = v[i] * v[i];
+	}
+
+	return sqrt(v[0] + v[1] + v[2]);
+}
 
 void Shape::Update(const double& deltaTime)
 {
