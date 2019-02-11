@@ -7,18 +7,22 @@ _lKey(false), _oKey(false), _uKey(false), _plusKey(false), _minusKey(false),
 _upKey(false), _downKey(false), _leftKey(false), _rightKey(false)
 {
 	size(_INIT_SIZE);
-	x = 3;
-	std::vector< std::vector<float> > list;
 
-	float r = 1.f;
-	std::vector<float> f(3), l(3), rs(3), t(3), b(3), ba(3);
-	f = { 0, 0, r };
-	l = { -r, 0, 0 };
-	rs = { r, 0, 0 };
-	t = { 0, r, 0 };
-	b = { 0, -r, 0 };
-	ba = { 0, 0, -r };
+	// number of subdivision iterations
+	x = 3; // CHANGE ME FOR DIFFERENT RESULTS! *Be warned, 5+ has impact on performance, recommended 1-4 range. 
+	
+	std::vector< std::vector<float> > list; // list of vertices from the subdivision result
 
+	float r = 1.f; // radius
+	std::vector<float> f(3), l(3), rs(3), t(3), b(3), ba(3); // Each vertex of the original octahedron
+	f = { 0, 0, r }; // front vertex
+	l = { -r, 0, 0 }; // left vertex
+	rs = { r, 0, 0 }; // right vertex
+	t = { 0, r, 0 }; // top vertex
+	b = { 0, -r, 0 }; // bottom vertex
+	ba = { 0, 0, -r }; // back vertex
+
+	// subdivision for each of the 8 octahedron faces
 	Subdivision(x, f, rs, t);
 	Subdivision(x, f, b, rs);
 	Subdivision(x, rs, ba, t);
@@ -50,7 +54,7 @@ void Shape::Display()
 	glRotatef(rotation[2], 0.0f, 0.0f, 1.0f); // angle rz about (0,0,1)
 	glRotatef(rotation[0], 1.0f, 0.0f, 0.0f); // angle rx about (1,0,0)
 
-	
+	// draw the subdivided octahedron (sphere)
 	DrawOctahedron();
 
 	// Reenable default lighting (IGNORE THIS)
@@ -61,10 +65,13 @@ void Shape::Display()
 
 void Shape::DrawOctahedron()
 {
+	// set colour to grey
 	glColor3f(0.7f, 0.7f, 0.7f);
 
+	//construct from triangles
 	glBegin(GL_TRIANGLES);
 
+	// get x, y and z from 3 entries in the subdivision resultant list of vertices and construct a triangle from them
 	for (unsigned i = 0; i < list.size() - 2; i += 3) {
 		    glVertex3f(list[i][0], list[i][1], list[i][2]);
 			glVertex3f(list[i + 1][0], list[i + 1][1], list[i + 1][2]);
@@ -83,10 +90,12 @@ void Shape::Subdivision(int n, std::vector<float> l, std::vector<float> r, std::
 	v2 = { (float) ((l[0] + r[0]) / 2), (float) ((l[1] + r[1]) / 2), (float) ((l[2] + r[2]) / 2) };
 	v3 = { (float) ((t[0] + r[0]) / 2), (float) ((t[1] + r[1]) / 2), (float) ((t[2] + r[2]) / 2) };
 
+	// Calculate where the vertex should be pushed/moved to via normalization
 	v1 = { (float) (v1[0] / GetMagnitude(v1)), (float) (v1[1] / GetMagnitude(v1)), (float) (v1[2] / GetMagnitude(v1)) };
 	v2 = { (float) (v2[0] / GetMagnitude(v2)), (float) (v2[1] / GetMagnitude(v2)), (float) (v2[2] / GetMagnitude(v2)) };
 	v3 = { (float) (v3[0] / GetMagnitude(v3)), (float) (v3[1] / GetMagnitude(v3)), (float) (v3[2] / GetMagnitude(v3)) };
 
+	// add resultants vertices from each subdivision into the list
 	if (n == 0) {
 		list.push_back(l);
 		list.push_back(v2);
@@ -105,6 +114,7 @@ void Shape::Subdivision(int n, std::vector<float> l, std::vector<float> r, std::
 		list.push_back(t);
 	}
 
+	// recursively call subdivision on the new triangles from the subdivision
 	if ( n != 0 ) {
 		Subdivision(n - 1, v1, v3, t);
 		Subdivision(n - 1, l, v2, v1);
@@ -117,6 +127,8 @@ void Shape::Subdivision(int n, std::vector<float> l, std::vector<float> r, std::
 
 float Shape::GetMagnitude(std::vector<float> v)
 {
+	// Pythagoras
+
 	for (int i = 0; i < 3; i++) {
 		v[i] = v[i] * v[i];
 	}
