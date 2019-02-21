@@ -9,7 +9,7 @@ _upKey(false), _downKey(false), _leftKey(false), _rightKey(false)
 	size(_INIT_SIZE);
 
 	// number of subdivision iterations
-	x = 3; // CHANGE ME FOR DIFFERENT RESULTS! *Be warned, 5+ has impact on performance, recommended 1-4 range. 
+	x = 4; // CHANGE ME FOR DIFFERENT RESULTS! *Be warned, 6+ has impact on performance, recommended 1-5 range. 
 	
 	std::vector< std::vector<float> > list; // list of vertices from the subdivision result
 
@@ -22,16 +22,18 @@ _upKey(false), _downKey(false), _leftKey(false), _rightKey(false)
 	b = { 0, -r, 0 }; // bottom vertex
 	ba = { 0, 0, -r }; // back vertex
 
-	// subdivision for each of the 8 octahedron faces
-	Subdivision(x, f, rs, t);
-	Subdivision(x, f, b, rs);
-	Subdivision(x, rs, ba, t);
-	Subdivision(x, rs, b, ba);
-	Subdivision(x, ba, l, t);
-	Subdivision(x, ba, b, l);
-	Subdivision(x, l, f, t);
-	Subdivision(x, l, b, f);
-
+	// only call subdivide if needed
+	if (x != 0) {
+		// subdivision for each of the 8 octahedron faces
+		Subdivision(x, f, rs, t);
+		Subdivision(x, f, b, rs);
+		Subdivision(x, rs, ba, t);
+		Subdivision(x, rs, b, ba);
+		Subdivision(x, ba, l, t);
+		Subdivision(x, ba, b, l);
+		Subdivision(x, l, f, t);
+		Subdivision(x, l, b, f);
+	}
 }
 
 void Shape::Display()
@@ -54,6 +56,9 @@ void Shape::Display()
 	glRotatef(rotation[2], 0.0f, 0.0f, 1.0f); // angle rz about (0,0,1)
 	glRotatef(rotation[0], 1.0f, 0.0f, 0.0f); // angle rx about (1,0,0)
 
+	// seed random number generator for consistent red colours
+	srand(100);
+
 	// draw the subdivided octahedron (sphere)
 	DrawOctahedron();
 
@@ -65,19 +70,66 @@ void Shape::Display()
 
 void Shape::DrawOctahedron()
 {
-	// set colour to grey
-	glColor3f(0.7f, 0.7f, 0.7f);
-
 	//construct from triangles
 	glBegin(GL_TRIANGLES);
 
-	// get x, y and z from 3 entries in the subdivision resultant list of vertices and construct a triangle from them
-	for (unsigned i = 0; i < list.size() - 2; i += 3) {
-		    glVertex3f(list[i][0], list[i][1], list[i][2]);
+	// if no subdivision occurs, draw octahedron normally with random shades of red
+	if (x == 0) {
+		float r = 1.f;
+		// Top Half
+		// Front-Right Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(0, 0, r);
+		glVertex3f(r, 0, 0);
+		glVertex3f(0, r, 0);
+		// Back-Right Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(r, 0, 0);
+		glVertex3f(0, 0, -r);
+		glVertex3f(0, r, 0);
+		// Back-Left Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(0, 0, -r);
+		glVertex3f(-r, 0, 0);
+		glVertex3f(0, r, 0);
+		// Front-Left Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(-r, 0, 0);
+		glVertex3f(0, 0, r);
+		glVertex3f(0, r, 0);
+		// Bottom Half
+		// Front-Right Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(r, 0, 0);
+		glVertex3f(0, 0, r);
+		glVertex3f(0, -r, 0);
+		// Back-Right Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(0, 0, -r);
+		glVertex3f(r, 0, 0);
+		glVertex3f(0, -r, 0);
+		// Back-Left Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(-r, 0, 0);
+		glVertex3f(0, 0, -r);
+		glVertex3f(0, -r, 0);
+		// Front-Left Face
+		glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+		glVertex3f(0, 0, r);
+		glVertex3f(-r, 0, 0);
+		glVertex3f(0, -r, 0);
+	} else { // get x, y and z from 3 entries in the subdivision resultant list of vertices and construct a triangle from them
+		for (unsigned i = 0; i < list.size() - 2; i += 3) {
+
+			// set colour to a random shade of red to demonstrate triangular construction of sphere
+			glColor3f((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)), 0.f, 0.f);
+
+			glVertex3f(list[i][0], list[i][1], list[i][2]);
 			glVertex3f(list[i + 1][0], list[i + 1][1], list[i + 1][2]);
 			glVertex3f(list[i + 2][0], list[i + 2][1], list[i + 2][2]);
-	}
 
+		}
+	}
 	glEnd();
 }
 
@@ -96,7 +148,7 @@ void Shape::Subdivision(int n, std::vector<float> l, std::vector<float> r, std::
 	v3 = { (float) (v3[0] / GetMagnitude(v3)), (float) (v3[1] / GetMagnitude(v3)), (float) (v3[2] / GetMagnitude(v3)) };
 
 	// add resultants vertices from each subdivision into the list
-	if (n == 0) {
+	if ( n == 1 ) {
 		list.push_back(l);
 		list.push_back(v2);
 		list.push_back(v1);
